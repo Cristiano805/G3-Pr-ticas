@@ -43,8 +43,8 @@ class ScrollingBackground:
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, scale=5):
         super().__init__()
-        self.sheet_stop = pygame.image.load("Dino_Stop.png")
-        self.sheet_walk = pygame.image.load("Dino_Walking.png")
+        self.sheet_stop = pygame.image.load("assets/Dino_Stop.png")
+        self.sheet_walk = pygame.image.load("assets/Dino_Walking.png")
         self.width, self.height = 24, 24
         sheet_width_stop, sheet_height_stop = self.sheet_stop.get_size()
         sheet_width_walk, sheet_height_walk = self.sheet_walk.get_size()
@@ -96,7 +96,7 @@ def play():
     clock = pygame.time.Clock()
 
     player = Player(640, 360, scale=4)
-    scrolling_bg = ScrollingBackground("bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
+    scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
 
     scrolling_bg.change_scale(2.0)
 
@@ -160,7 +160,7 @@ def options():
         pygame.display.update()
 
 def main_menu():
-    background_menu_image = pygame.image.load("background_menu.png").convert()
+    background_menu_image = pygame.image.load("assets/background_menu.png").convert()
 
     while True:
         SCREEN.blit(background_menu_image, (0, 0))
