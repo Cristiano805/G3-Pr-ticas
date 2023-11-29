@@ -2,6 +2,7 @@ import pygame
 from button import Button
 import sys
 import math
+from random import choice
 
 pygame.init()
 
@@ -40,6 +41,30 @@ class ScrollingBackground:
     def change_scale(self, new_scale):
         self.scale = new_scale
         self.update_size()
+
+class Obstacle:
+    def __init__(self, x, y):
+        super().__init__()
+        self.width, self.height = 50, 50
+        self.border = 2
+        self.color = (255, 0, 0)
+
+        self.x = x
+        self.y = y
+
+        self.image = pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.image, self.border)
+
+    def update(self):
+        if self.x > -self.width:
+            self.x -= 1
+        else:
+            self.x = SCREEN_WIDTH + self.width
+        self.image = pygame.Rect(self.x, self.y, self.width, self.height)
+
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, scale=5):
@@ -105,6 +130,7 @@ class Player(pygame.sprite.Sprite):
                 self.y = self.y + 2
             else:
                 self.time_jump_passed = 0
+                self.y = GROUND
                 self.is_jumping = False
 
         self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
@@ -115,6 +141,9 @@ def play():
     clock = pygame.time.Clock()
 
     player = Player(640, GROUND, scale=4)
+    obstacle1 = Obstacle(SCREEN_WIDTH, GROUND)
+    obstacle2 = Obstacle(SCREEN_WIDTH + 400, GROUND)
+    obstacle3 = Obstacle(SCREEN_WIDTH + 800, GROUND)
 
     scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
 
@@ -124,8 +153,16 @@ def play():
         SCREEN.fill("black")
 
         scrolling_bg.update(SCREEN)
+        obstacle1.update()
+        obstacle2.update()
+        obstacle3.update()
         player.update()
+
         SCREEN.blit(player.image, player.rect.topleft)
+
+        obstacle1.draw(SCREEN)
+        obstacle2.draw(SCREEN)
+        obstacle3.draw(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
