@@ -82,7 +82,6 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         self.time_passed += clock.get_rawtime()
-        self.time_jump_passed += clock.get_rawtime()
         clock.tick()
 
         if self.time_passed >= self.time_per_frame:
@@ -109,6 +108,18 @@ class Player(pygame.sprite.Sprite):
             #     self.image = self.frames_stop[self.frame_index_stop].copy()
 
             self.time_passed = 0
+        
+        if self.is_jumping:
+            self.time_jump_passed += clock.get_rawtime()
+
+            if self.time_jump_passed <= self.time_per_jump / 2:
+                self.y = self.y - 2
+            elif self.time_jump_passed > self.time_per_jump / 2 and self.time_jump_passed <= self.time_per_jump:
+                self.y = self.y + 2
+            else:
+                self.time_jump_passed = 0
+                self.is_jumping = False
+
         self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
