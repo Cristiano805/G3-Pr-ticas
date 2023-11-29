@@ -7,6 +7,7 @@ pygame.init()
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+GROUND = SCREEN_HEIGHT - 80
 pygame.display.set_caption("Dino Adventures")
 
 def get_font(size):
@@ -51,6 +52,9 @@ class Player(pygame.sprite.Sprite):
         num_frames_stop = sheet_width_stop // self.width
         num_frames_walk = sheet_width_walk // self.width
 
+        self.x = x
+        self.y = y
+
         self.frames_stop = [self.sheet_stop.subsurface((i * self.width, 0, self.width, self.height)) for i in range(num_frames_stop)]
         self.frame_index_stop = 0
 
@@ -65,14 +69,20 @@ class Player(pygame.sprite.Sprite):
         self.time_per_frame = 100
         self.scale = scale
 
+        self.time_jump_passed = 0
+        self.time_last_jump = 0
+        self.time_per_jump = 1000
+
         self.image = pygame.transform.scale(self.frames_stop[self.frame_index_stop], (int(self.width * self.scale), int(self.height * self.scale)))
-        self.rect = self.image.get_rect(center=(x, y))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
         self.is_walking = False
+        self.is_jumping = False
         self.direction = "right"
 
     def update(self):
         self.time_passed += clock.get_rawtime()
+        self.time_jump_passed += clock.get_rawtime()
         clock.tick()
 
         if self.time_passed >= self.time_per_frame:
@@ -80,22 +90,34 @@ class Player(pygame.sprite.Sprite):
                 if self.direction == "right":
                     self.frame_index_walk_right = (self.frame_index_walk_right + 1) % len(self.frames_walk_right)
                     self.image = self.frames_walk_right[self.frame_index_walk_right].copy()
+                    self.x = self.x + 8
                 elif self.direction == "left":
                     self.frame_index_walk_left = (self.frame_index_walk_left + 1) % len(self.frames_walk_left)
                     self.image = self.frames_walk_left[self.frame_index_walk_left].copy()
-            else:
-                self.frame_index_stop = (self.frame_index_stop + 1) % len(self.frames_stop)
-                self.image = self.frames_stop[self.frame_index_stop].copy()
+                    self.x = self.x - 8
+            
+            # Ajustar logica do jump
+            # elif self.is_jumping:
+            #     if self.time_jump_passed > self.time_per_jump:
+            #         self.y = self.y - 8
+            #     else:
+            #         self.is_jumping = False
+            #         print('acabou o tempo do jump')    
+
+            # else:
+            #     self.frame_index_stop = (self.frame_index_stop + 1) % len(self.frames_stop)
+            #     self.image = self.frames_stop[self.frame_index_stop].copy()
 
             self.time_passed = 0
-
         self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
 def play():
     global clock
     clock = pygame.time.Clock()
 
-    player = Player(640, 360, scale=4)
+    player = Player(640, GROUND, scale=4)
+    print('iniciou: ', player.y)
     scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
 
     scrolling_bg.change_scale(2.0)
@@ -120,6 +142,9 @@ def play():
                 elif event.key == pygame.K_RIGHT:
                     player.is_walking = True
                     player.direction = "right"
+                elif event.key == pygame.K_UP:
+                    player.is_walking = False
+                    player.is_jumping = True
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     player.is_walking = False
