@@ -94,19 +94,6 @@ class Player(pygame.sprite.Sprite):
                     self.frame_index_walk_left = (self.frame_index_walk_left + 1) % len(self.frames_walk_left)
                     self.image = self.frames_walk_left[self.frame_index_walk_left].copy()
                     self.x = self.x - 8
-            
-            # Ajustar logica do jump
-            # elif self.is_jumping:
-            #     if self.time_jump_passed > self.time_per_jump:
-            #         self.y = self.y - 8
-            #     else:
-            #         self.is_jumping = False
-            #         print('acabou o tempo do jump')    
-
-            # else:
-            #     self.frame_index_stop = (self.frame_index_stop + 1) % len(self.frames_stop)
-            #     self.image = self.frames_stop[self.frame_index_stop].copy()
-
             self.time_passed = 0
         
         if self.is_jumping:
@@ -128,7 +115,7 @@ def play():
     clock = pygame.time.Clock()
 
     player = Player(640, GROUND, scale=4)
-    print('iniciou: ', player.y)
+
     scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
 
     scrolling_bg.change_scale(2.0)
