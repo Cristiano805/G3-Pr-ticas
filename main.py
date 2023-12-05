@@ -52,6 +52,8 @@ class Obstacle:
         self.x = x
         self.y = y
 
+        self.count = 0
+
         self.image = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def draw(self, screen):
@@ -59,8 +61,9 @@ class Obstacle:
 
     def update(self):
         if self.x > -self.width:
-            self.x -= 1
+            self.x -= 2
         else:
+            self.count += 1
             self.x = SCREEN_WIDTH + self.width
         self.image = pygame.Rect(self.x, self.y, self.width, self.height)
 
@@ -89,9 +92,9 @@ class Player(pygame.sprite.Sprite):
         self.frames_walk_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_walk_right]
         self.frame_index_walk_left = 0
 
-        self.frame_rate = 10
-        self.time_passed = 0
-        self.time_per_frame = 100
+        self.time_passed_to_update = 0
+        self.time_passed_to_draw = 0
+        self.time_per_frame = 60
         self.scale = scale
 
         self.time_jump_passed = 0
@@ -105,45 +108,62 @@ class Player(pygame.sprite.Sprite):
         self.is_jumping = False
         self.direction = "right"
 
-    def update(self):
-        self.time_passed += clock.get_rawtime()
-        clock.tick()
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.hitbox_rect = None
 
-        if self.time_passed >= self.time_per_frame:
+    def draw(self, screen):
+        self.time_passed_to_draw += clock.get_rawtime()
+
+        if self.time_passed_to_draw >= self.time_per_frame:
             if self.is_walking:
                 if self.direction == "right":
                     self.frame_index_walk_right = (self.frame_index_walk_right + 1) % len(self.frames_walk_right)
                     self.image = self.frames_walk_right[self.frame_index_walk_right].copy()
-                    self.x = self.x + 8
                 elif self.direction == "left":
                     self.frame_index_walk_left = (self.frame_index_walk_left + 1) % len(self.frames_walk_left)
                     self.image = self.frames_walk_left[self.frame_index_walk_left].copy()
-                    self.x = self.x - 8
-            self.time_passed = 0
+            self.time_passed_to_draw = 0
+
+        self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
+
+        self.hitbox = (self.x - self.width - 10, self.y - self.height - 10, self.width * 3, self.height * 3)
+        self.hitbox_rect = pygame.draw.rect(screen, (255,0,0), self.hitbox,2)
+
+    def update(self):
+        self.time_passed_to_update += clock.get_rawtime()
+        clock.tick()
+
+        if self.time_passed_to_update >= self.time_per_frame:
+            if self.is_walking:
+                if self.direction == "right":
+                    self.x = self.x + 12
+                elif self.direction == "left":
+                    self.x = self.x - 12
+            self.time_passed_to_update = 0
         
         if self.is_jumping:
             self.time_jump_passed += clock.get_rawtime()
 
             if self.time_jump_passed <= self.time_per_jump / 2:
-                self.y = self.y - 2
+                self.y = self.y - 4
             elif self.time_jump_passed > self.time_per_jump / 2 and self.time_jump_passed <= self.time_per_jump:
-                self.y = self.y + 2
+                self.y = self.y + 4
             else:
                 self.time_jump_passed = 0
                 self.y = GROUND
                 self.is_jumping = False
 
-        self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
-        self.rect = self.image.get_rect(center=(self.x, self.y))
+        
 
 def play():
     global clock
     clock = pygame.time.Clock()
 
-    player = Player(640, GROUND, scale=4)
-    obstacle1 = Obstacle(SCREEN_WIDTH, GROUND)
-    obstacle2 = Obstacle(SCREEN_WIDTH + 400, GROUND)
-    obstacle3 = Obstacle(SCREEN_WIDTH + 800, GROUND)
+    player = Player(SCREEN_WIDTH - 800, GROUND, scale=4)
+    obstacle1 = Obstacle(SCREEN_WIDTH - 400, GROUND)
+    obstacle2 = Obstacle(SCREEN_WIDTH, GROUND)
+    obstacle3 = Obstacle(SCREEN_WIDTH + 400, GROUND)
 
     scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, position=(0, 100))
 
@@ -160,9 +180,18 @@ def play():
 
         SCREEN.blit(player.image, player.rect.topleft)
 
+        player.draw(SCREEN)
         obstacle1.draw(SCREEN)
         obstacle2.draw(SCREEN)
         obstacle3.draw(SCREEN)
+
+        list_of_obstacles = [obstacle1.image, obstacle2.image, obstacle3.image]
+        colision = player.hitbox_rect.collidelist(list_of_obstacles)
+
+        if player.hitbox != None and colision != -1:
+            total_score = obstacle1.count + obstacle2.count + obstacle3.count
+            print("Total score: " + str(total_score))
+            return "menu"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -178,7 +207,6 @@ def play():
                     player.is_walking = True
                     player.direction = "right"
                 elif event.key == pygame.K_UP:
-                    player.is_walking = False
                     player.is_jumping = True
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
