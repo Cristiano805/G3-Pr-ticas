@@ -1,10 +1,13 @@
 class Button():
-	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
+	def __init__(self, image, pos, text_input, font, base_color, hovering_color, selected_color="Green"):
 		self.image = image
 		self.x_pos = pos[0]
 		self.y_pos = pos[1]
 		self.font = font
 		self.base_color, self.hovering_color = base_color, hovering_color
+
+		self.selected_color = selected_color
+
 		self.text_input = text_input
 		self.text = self.font.render(self.text_input, True, self.base_color)
 		if self.image is None:
@@ -22,7 +25,10 @@ class Button():
 			return True
 		return False
 
-	def changeColor(self, position):
+	def changeColor(self, position, selected=False):
+		if selected:
+			self.text = self.font.render(self.text_input, True, self.selected_color)
+			return
 		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
 			self.text = self.font.render(self.text_input, True, self.hovering_color)
 		else:

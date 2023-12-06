@@ -11,9 +11,11 @@ SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 GROUND = SCREEN_HEIGHT - 80
 pygame.display.set_caption("Dino Adventures")
 FILENAME = 'scoreboard.txt'
+difficulty = [1, 2, 4]
+difficulty_index = 0
 
 def get_font(size):
-    return pygame.font.Font("assets/font.ttf", size)        
+    return pygame.font.Font("assets/font.ttf", size)
 
 def play():
     global clock
@@ -22,14 +24,16 @@ def play():
     hero_mode = False
 
     player = character.Player(SCREEN_WIDTH - 800, GROUND, clock, SCREEN_WIDTH, scale=4)
+
+    speed = difficulty[difficulty_index]
     
     # obstaculos terrestres
-    obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
-    obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH)
-    obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH)
+    obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH, speed)
+    obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH, speed)
+    obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH, speed)
     
     # obstaculo aereo
-    obstacle4 = obstacle.Obstacle(SCREEN_WIDTH + 800, GROUND - 280, SCREEN_WIDTH)
+    obstacle4 = obstacle.Obstacle(SCREEN_WIDTH + 800, GROUND - 280, SCREEN_WIDTH, speed)
 
     scrolling_bg = background.ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
 
@@ -89,13 +93,14 @@ def play():
         pygame.display.update()
 
 def options():
+    global difficulty_index
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
         SCREEN.fill("Black")
 
         OPTIONS_TEXT = get_font(45).render("Tela de configurações", True, "White")
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 50))
         SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
         BUTTON_WIDTH, BUTTON_HEIGHT = 1000, 109
@@ -103,11 +108,31 @@ def options():
         OPTIONS_BUTTON_IMAGE = pygame.image.load("assets/Options Rect.png")
         OPTIONS_BUTTON_IMAGE = pygame.transform.scale(OPTIONS_BUTTON_IMAGE, (BUTTON_WIDTH, BUTTON_HEIGHT))
 
-        OPTIONS_BACK = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 460), 
-                            text_input="Voltar", font=get_font(75), base_color="White", hovering_color="Red")
+
+        EASY_DIFICULTY_BUTTON = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 150),
+                            text_input="FÁCIL", font=get_font(40), base_color="#d7fcd4", hovering_color="Green",
+                            selected_color="Green")
+        NORMAL_DIFICULTY_BUTTON = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 300),
+                                    text_input="NORMAL", font=get_font(40), base_color="#d7fcd4", hovering_color="Green",
+                                    selected_color="Green")
+        HARD_DIFICULTY_BUTTON = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 450),
+                                    text_input="DIFÍCIL", font=get_font(40), base_color="#d7fcd4", hovering_color="Green",
+                                    selected_color="Green")
+
+        OPTIONS_BACK = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 600),
+                            text_input="Voltar", font=get_font(40), base_color="White", hovering_color="Red")
 
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
         OPTIONS_BACK.update(SCREEN)
+        
+        EASY_DIFICULTY_BUTTON.changeColor(OPTIONS_MOUSE_POS, difficulty_index == 0)
+        EASY_DIFICULTY_BUTTON.update(SCREEN)
+        
+        NORMAL_DIFICULTY_BUTTON.changeColor(OPTIONS_MOUSE_POS, difficulty_index == 1)
+        NORMAL_DIFICULTY_BUTTON.update(SCREEN)
+        
+        HARD_DIFICULTY_BUTTON.changeColor(OPTIONS_MOUSE_POS, difficulty_index == 2)
+        HARD_DIFICULTY_BUTTON.update(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -116,6 +141,15 @@ def options():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
                     return "menu"
+                elif EASY_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
+                    difficulty_index = 0
+                    print("easy")
+                elif NORMAL_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
+                    difficulty_index = 1
+                    print("normal")
+                elif HARD_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
+                    difficulty_index = 2
+                    print("hard")
 
         pygame.display.update()
 
