@@ -24,6 +24,16 @@ class ScrollingBackground:
         self.scale = scale
         self.update_size()
 
+        self.count = 0
+        self.time_per_count = 200
+        self.time_passed_to_count = 0
+
+    def draw(self, screen):
+        text = "Pontuação: " + str(self.count)
+        SCORE_TEXT = get_font(20).render(text, True, "White")
+        SCORE_RECT = SCORE_TEXT.get_rect(center=(640, 160))
+        screen.blit(SCORE_TEXT, SCORE_RECT)
+
     def update_size(self):
         self.bg = pygame.transform.scale(self.bg, (int(self.original_width * self.scale), int(self.original_height * self.scale)))
         self.bg_width = self.bg.get_width()
@@ -34,6 +44,12 @@ class ScrollingBackground:
             screen.blit(self.bg, (i * self.bg_width + self.scroll + self.position.x, self.position.y))
 
         self.scroll -= 1
+        
+        self.time_passed_to_count += clock.get_rawtime()
+
+        if self.time_passed_to_count >= self.time_per_count:
+            self.count += 1
+            self.time_passed_to_count = 0
 
         if self.scroll <= -self.bg_width:
             self.scroll = 0
@@ -180,6 +196,7 @@ def play():
 
         SCREEN.blit(player.image, player.rect.topleft)
 
+        scrolling_bg.draw(SCREEN)
         player.draw(SCREEN)
         obstacle1.draw(SCREEN)
         obstacle2.draw(SCREEN)
@@ -189,7 +206,8 @@ def play():
         colision = player.hitbox_rect.collidelist(list_of_obstacles)
 
         if player.hitbox != None and colision != -1:
-            total_score = obstacle1.count + obstacle2.count + obstacle3.count
+            total_score = scrolling_bg.count
+            save(total_score) # salva pontuação no arquivo txt
             print("Total score: " + str(total_score))
             return "menu"
 
@@ -297,6 +315,31 @@ def main_menu():
                     sys.exit()
 
         pygame.display.update()
+
+def save(score):
+    filename = 'scoreboard.txt'
+    scores = []
+
+    # Abre o arquivo no modo de leitura ('r' para ler)
+    with open(filename, 'r') as file:
+        # Lê cada linha do arquivo
+        lines = file.readlines()
+
+        for line in lines:
+            saved_score = int(line.strip())  # O método strip remove espaços em branco, quebras de linha, etc.
+            scores.append(saved_score)
+        
+    scores.append(score)
+    # Cria uma nova lista ordenada do maior para o menor usando a função sorted()
+    sorted_scores = sorted(scores, reverse=True)
+
+    if len(sorted_scores) > 10:
+        sorted_scores.pop()
+
+    with open(filename, 'w') as file:
+        # Escreve a string desejada seguida de uma quebra de linha
+        for elem in sorted_scores:
+            file.write(str(elem) + '\n')
 
 if __name__ == "__main__":
     main_menu()
