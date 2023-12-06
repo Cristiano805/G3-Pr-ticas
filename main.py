@@ -2,9 +2,7 @@ import pygame
 import sys
 from random import choice
 
-from button import Button
-from background import ScrollingBackground
-from obstacle import Obstacle
+from components import background, button, character, obstacle
 
 pygame.init()
 
@@ -14,105 +12,18 @@ GROUND = SCREEN_HEIGHT - 80
 pygame.display.set_caption("Dino Adventures")
 
 def get_font(size):
-    return pygame.font.Font("assets/font.ttf", size)
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale=5):
-        super().__init__()
-        self.sheet_stop = pygame.image.load("assets/Dino_Stop.png")
-        self.sheet_walk = pygame.image.load("assets/Dino_Walking.png")
-        self.width, self.height = 24, 24
-        sheet_width_stop, sheet_height_stop = self.sheet_stop.get_size()
-        sheet_width_walk, sheet_height_walk = self.sheet_walk.get_size()
-        num_frames_stop = sheet_width_stop // self.width
-        num_frames_walk = sheet_width_walk // self.width
-
-        self.x = x
-        self.y = y
-
-        self.frames_stop = [self.sheet_stop.subsurface((i * self.width, 0, self.width, self.height)) for i in range(num_frames_stop)]
-        self.frame_index_stop = 0
-
-        self.frames_walk_right = [self.sheet_walk.subsurface((i * self.width, 0, self.width, self.height)) for i in range(num_frames_walk)]
-        self.frame_index_walk_right = 0
-
-        self.frames_walk_left = [pygame.transform.flip(frame, True, False) for frame in self.frames_walk_right]
-        self.frame_index_walk_left = 0
-
-        self.time_passed_to_update = 0
-        self.time_passed_to_draw = 0
-        self.time_per_frame = 60
-        self.scale = scale
-
-        self.time_jump_passed = 0
-        self.time_last_jump = 0
-        self.time_per_jump = 1000
-
-        self.image = pygame.transform.scale(self.frames_stop[self.frame_index_stop], (int(self.width * self.scale), int(self.height * self.scale)))
-        self.rect = self.image.get_rect(center=(self.x, self.y))
-
-        self.is_walking = False
-        self.is_jumping = False
-        self.direction = "right"
-
-        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
-        self.hitbox_rect = None
-
-    def draw(self, screen):
-        self.time_passed_to_draw += clock.get_rawtime()
-
-        if self.time_passed_to_draw >= self.time_per_frame:
-            if self.is_walking:
-                if self.direction == "right":
-                    self.frame_index_walk_right = (self.frame_index_walk_right + 1) % len(self.frames_walk_right)
-                    self.image = self.frames_walk_right[self.frame_index_walk_right].copy()
-                elif self.direction == "left":
-                    self.frame_index_walk_left = (self.frame_index_walk_left + 1) % len(self.frames_walk_left)
-                    self.image = self.frames_walk_left[self.frame_index_walk_left].copy()
-            self.time_passed_to_draw = 0
-
-        self.image = pygame.transform.scale(self.image, (int(self.width * self.scale), int(self.height * self.scale)))
-        self.rect = self.image.get_rect(center=(self.x, self.y))
-
-        self.hitbox = (self.x - self.width - 10, self.y - self.height - 10, self.width * 3, self.height * 3)
-        self.hitbox_rect = pygame.draw.rect(screen, (255,0,0), self.hitbox,2)
-
-    def update(self):
-        self.time_passed_to_update += clock.get_rawtime()
-        clock.tick()
-
-        if self.time_passed_to_update >= self.time_per_frame:
-            if self.is_walking:
-                if self.direction == "right":
-                    self.x = self.x + 12
-                elif self.direction == "left":
-                    self.x = self.x - 12
-            self.time_passed_to_update = 0
-        
-        if self.is_jumping:
-            self.time_jump_passed += clock.get_rawtime()
-
-            if self.time_jump_passed <= self.time_per_jump / 2:
-                self.y = self.y - 4
-            elif self.time_jump_passed > self.time_per_jump / 2 and self.time_jump_passed <= self.time_per_jump:
-                self.y = self.y + 4
-            else:
-                self.time_jump_passed = 0
-                self.y = GROUND
-                self.is_jumping = False
-
-        
+    return pygame.font.Font("assets/font.ttf", size)        
 
 def play():
     global clock
     clock = pygame.time.Clock()
 
-    player = Player(SCREEN_WIDTH - 800, GROUND, scale=4)
-    obstacle1 = Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
-    obstacle2 = Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH)
-    obstacle3 = Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH)
+    player = character.Player(SCREEN_WIDTH - 800, GROUND, clock, scale=4)
+    obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
+    obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH)
+    obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH)
 
-    scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
+    scrolling_bg = background.ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
 
     scrolling_bg.change_scale(2.0)
 
@@ -180,7 +91,7 @@ def options():
         OPTIONS_BUTTON_IMAGE = pygame.image.load("assets/Options Rect.png")
         OPTIONS_BUTTON_IMAGE = pygame.transform.scale(OPTIONS_BUTTON_IMAGE, (BUTTON_WIDTH, BUTTON_HEIGHT))
 
-        OPTIONS_BACK = Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 460), 
+        OPTIONS_BACK = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 460), 
                             text_input="Voltar", font=get_font(75), base_color="White", hovering_color="Red")
 
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
@@ -209,24 +120,24 @@ def main_menu():
 
         PLAY_BUTTON_IMAGE = pygame.image.load("assets/Play Rect.png")
         PLAY_BUTTON_IMAGE = pygame.transform.scale(PLAY_BUTTON_IMAGE, (1000, 109))
-        PLAY_BUTTON = Button(image=PLAY_BUTTON_IMAGE, pos=(640, 250),
+        PLAY_BUTTON = button.Button(image=PLAY_BUTTON_IMAGE, pos=(640, 250),
                             text_input="JOGAR", font=get_font(75), base_color="#d7fcd4", hovering_color="Green")
 
         OPTIONS_BUTTON_IMAGE = pygame.image.load("assets/Options Rect.png")
         OPTIONS_BUTTON_IMAGE = pygame.transform.scale(OPTIONS_BUTTON_IMAGE, (1000, 109))
-        OPTIONS_BUTTON = Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 400),
+        OPTIONS_BUTTON = button.Button(image=OPTIONS_BUTTON_IMAGE, pos=(640, 400),
                             text_input="CONFIGURAÇÕES", font=get_font(75), base_color="#d7fcd4", hovering_color="Green")
 
         QUIT_BUTTON_IMAGE = pygame.image.load("assets/Quit Rect.png")
         QUIT_BUTTON_IMAGE = pygame.transform.scale(QUIT_BUTTON_IMAGE, (1000, 109))
-        QUIT_BUTTON = Button(image=QUIT_BUTTON_IMAGE, pos=(640, 550),
+        QUIT_BUTTON = button.Button(image=QUIT_BUTTON_IMAGE, pos=(640, 550),
                             text_input="SAIR", font=get_font(75), base_color="#d7fcd4", hovering_color="Green")
 
         SCREEN.blit(MENU_TEXT, MENU_RECT)
 
-        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
-            button.changeColor(MENU_MOUSE_POS)
-            button.update(SCREEN)
+        for btn in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+            btn.changeColor(MENU_MOUSE_POS)
+            btn.update(SCREEN)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
