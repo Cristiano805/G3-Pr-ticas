@@ -143,13 +143,10 @@ def options():
                     return "menu"
                 elif EASY_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
                     difficulty_index = 0
-                    print("easy")
                 elif NORMAL_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
                     difficulty_index = 1
-                    print("normal")
                 elif HARD_DIFICULTY_BUTTON.checkForInput(OPTIONS_MOUSE_POS):
                     difficulty_index = 2
-                    print("hard")
 
         pygame.display.update()
 
