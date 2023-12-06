@@ -10,6 +10,7 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 GROUND = SCREEN_HEIGHT - 80
 pygame.display.set_caption("Dino Adventures")
+FILENAME = 'scoreboard.txt'
 
 def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)        
@@ -17,6 +18,8 @@ def get_font(size):
 def play():
     global clock
     clock = pygame.time.Clock()
+
+    hero_mode = False
 
     player = character.Player(SCREEN_WIDTH - 800, GROUND, clock, scale=4)
     obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
@@ -47,7 +50,7 @@ def play():
         list_of_obstacles = [obstacle1.image, obstacle2.image, obstacle3.image]
         colision = player.hitbox_rect.collidelist(list_of_obstacles)
 
-        if player.hitbox != None and colision != -1:
+        if player.hitbox != None and colision != -1 and not hero_mode:
             total_score = scrolling_bg.count
             save(total_score) # salva pontuação no arquivo txt
             print("Total score: " + str(total_score))
@@ -68,6 +71,8 @@ def play():
                     player.direction = "right"
                 elif event.key == pygame.K_UP:
                     player.is_jumping = True
+                elif event.key == pygame.K_h:
+                    hero_mode = not hero_mode
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     player.is_walking = False
@@ -159,11 +164,10 @@ def main_menu():
         pygame.display.update()
 
 def save(score):
-    filename = 'scoreboard.txt'
     scores = []
 
     # Abre o arquivo no modo de leitura ('r' para ler)
-    with open(filename, 'r') as file:
+    with open(FILENAME, 'r') as file:
         # Lê cada linha do arquivo
         lines = file.readlines()
 
@@ -178,7 +182,7 @@ def save(score):
     if len(sorted_scores) > 10:
         sorted_scores.pop()
 
-    with open(filename, 'w') as file:
+    with open(FILENAME, 'w') as file:
         # Escreve a string desejada seguida de uma quebra de linha
         for elem in sorted_scores:
             file.write(str(elem) + '\n')
