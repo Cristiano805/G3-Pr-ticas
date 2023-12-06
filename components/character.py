@@ -1,7 +1,7 @@
 import pygame
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, clock, scale=5):
+    def __init__(self, x, y, clock, screen_width, scale=5):
         super().__init__()
         self.sheet_stop = pygame.image.load("assets/Dino_Stop.png")
         self.sheet_walk = pygame.image.load("assets/Dino_Walking.png")
@@ -45,6 +45,8 @@ class Player(pygame.sprite.Sprite):
         self.hitbox = (self.x + 17, self.y + 2, 31, 57)
         self.hitbox_rect = None
 
+        self.screen_width = screen_width
+
     def draw(self, screen):
         self.time_passed_to_draw += self.clock.get_rawtime()
 
@@ -70,9 +72,9 @@ class Player(pygame.sprite.Sprite):
 
         if self.time_passed_to_update >= self.time_per_frame:
             if self.is_walking:
-                if self.direction == "right":
+                if self.direction == "right" and self.x < self.screen_width - self.width:
                     self.x = self.x + 12
-                elif self.direction == "left":
+                elif self.direction == "left" and self.x > self.width:
                     self.x = self.x - 12
             self.time_passed_to_update = 0
         

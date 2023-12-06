@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class Obstacle:
     def __init__(self, x, y, screen_width):
@@ -11,8 +12,6 @@ class Obstacle:
         self.y = y
         self.screen_width = screen_width
 
-        self.count = 0
-
         self.image = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def draw(self, screen):
@@ -22,6 +21,5 @@ class Obstacle:
         if self.x > -self.width:
             self.x -= 2
         else:
-            self.count += 1
-            self.x = self.screen_width + self.width
+            self.x = self.screen_width + random.randint(0, 200)
         self.image = pygame.Rect(self.x, self.y, self.width, self.height)

@@ -21,10 +21,15 @@ def play():
 
     hero_mode = False
 
-    player = character.Player(SCREEN_WIDTH - 800, GROUND, clock, scale=4)
+    player = character.Player(SCREEN_WIDTH - 800, GROUND, clock, SCREEN_WIDTH, scale=4)
+    
+    # obstaculos terrestres
     obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
     obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH)
     obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH)
+    
+    # obstaculo aereo
+    obstacle4 = obstacle.Obstacle(SCREEN_WIDTH + 800, GROUND - 280, SCREEN_WIDTH)
 
     scrolling_bg = background.ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
 
@@ -37,6 +42,7 @@ def play():
         obstacle1.update()
         obstacle2.update()
         obstacle3.update()
+        obstacle4.update()
         player.update()
 
         SCREEN.blit(player.image, player.rect.topleft)
@@ -46,8 +52,9 @@ def play():
         obstacle1.draw(SCREEN)
         obstacle2.draw(SCREEN)
         obstacle3.draw(SCREEN)
+        obstacle4.draw(SCREEN)
 
-        list_of_obstacles = [obstacle1.image, obstacle2.image, obstacle3.image]
+        list_of_obstacles = [obstacle1.image, obstacle2.image, obstacle3.image, obstacle4.image]
         colision = player.hitbox_rect.collidelist(list_of_obstacles)
 
         if player.hitbox != None and colision != -1 and not hero_mode:
