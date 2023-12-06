@@ -4,6 +4,7 @@ from random import choice
 
 from button import Button
 from background import ScrollingBackground
+from obstacle import Obstacle
 
 pygame.init()
 
@@ -14,33 +15,6 @@ pygame.display.set_caption("Dino Adventures")
 
 def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)
-
-class Obstacle:
-    def __init__(self, x, y):
-        super().__init__()
-        self.width, self.height = 50, 50
-        self.border = 2
-        self.color = (255, 0, 0)
-
-        self.x = x
-        self.y = y
-
-        self.count = 0
-
-        self.image = pygame.Rect(self.x, self.y, self.width, self.height)
-
-    def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.image, self.border)
-
-    def update(self):
-        if self.x > -self.width:
-            self.x -= 2
-        else:
-            self.count += 1
-            self.x = SCREEN_WIDTH + self.width
-        self.image = pygame.Rect(self.x, self.y, self.width, self.height)
-
-
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, scale=5):
@@ -134,9 +108,9 @@ def play():
     clock = pygame.time.Clock()
 
     player = Player(SCREEN_WIDTH - 800, GROUND, scale=4)
-    obstacle1 = Obstacle(SCREEN_WIDTH - 400, GROUND)
-    obstacle2 = Obstacle(SCREEN_WIDTH, GROUND)
-    obstacle3 = Obstacle(SCREEN_WIDTH + 400, GROUND)
+    obstacle1 = Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH)
+    obstacle2 = Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH)
+    obstacle3 = Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH)
 
     scrolling_bg = ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
 
