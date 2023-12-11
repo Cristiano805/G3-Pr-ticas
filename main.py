@@ -28,12 +28,13 @@ def play():
     speed = difficulty[difficulty_index]
     
     # obstaculos terrestres
-    obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH, speed)
-    obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH, speed)
-    obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH, speed)
-    
-    # obstaculo aereo
-    obstacle4 = obstacle.Obstacle(SCREEN_WIDTH + 800, GROUND - 280, SCREEN_WIDTH, speed)
+
+    obstacle_image_path = "assets/BadDino_Run.png"
+
+    obstacle1 = obstacle.Obstacle(SCREEN_WIDTH - 400, GROUND, SCREEN_WIDTH, speed, obstacle_image_path)
+    obstacle2 = obstacle.Obstacle(SCREEN_WIDTH, GROUND, SCREEN_WIDTH, speed, obstacle_image_path)
+    obstacle3 = obstacle.Obstacle(SCREEN_WIDTH + 400, GROUND, SCREEN_WIDTH, speed, obstacle_image_path)
+    obstacle4 = obstacle.Obstacle(SCREEN_WIDTH + 800, GROUND - 280, SCREEN_WIDTH, speed, obstacle_image_path)
 
     scrolling_bg = background.ScrollingBackground("assets/bg.jpg", SCREEN_WIDTH, SCREEN_HEIGHT, clock, position=(0, 100))
 
@@ -49,17 +50,23 @@ def play():
         obstacle4.update()
         player.update()
 
+        # Adicione a chamada ao método animate para cada obstáculo
+        obstacle1.animate(clock)
+        obstacle2.animate(clock)
+        obstacle3.animate(clock)
+        obstacle4.animate(clock)
+
         SCREEN.blit(player.image, player.rect.topleft)
 
         scrolling_bg.draw(SCREEN)
         player.draw(SCREEN)
-        obstacle1.draw(SCREEN)
-        obstacle2.draw(SCREEN)
-        obstacle3.draw(SCREEN)
-        obstacle4.draw(SCREEN)
+        obstacle1.draw(SCREEN, scale=4.0)  # Adjust the scale factor as needed
+        obstacle2.draw(SCREEN, scale=4.0)
+        obstacle3.draw(SCREEN, scale=4.0)
+        obstacle4.draw(SCREEN, scale=4.0)
 
         list_of_obstacles = [obstacle1.image, obstacle2.image, obstacle3.image, obstacle4.image]
-        colision = player.hitbox_rect.collidelist(list_of_obstacles)
+        colision = player.hitbox_rect.collidelist([obstacle1.rect, obstacle2.rect, obstacle3.rect, obstacle4.rect])
 
         if player.hitbox != None and colision != -1 and not hero_mode:
             total_score = scrolling_bg.count
