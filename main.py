@@ -72,7 +72,7 @@ def play():
             total_score = scrolling_bg.count
             save(total_score) # salva pontuação no arquivo txt
             print("Total score: " + str(total_score))
-            return "menu"
+            return
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
