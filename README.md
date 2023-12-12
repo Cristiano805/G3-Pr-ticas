@@ -16,4 +16,4 @@ O objetivo geral desse jogo é recriar e modernizar o famoso jogo do Dinossauro 
 
 # Apresentação
 
-<li><a href="Dino-Adventures.pptx"> Apresentação da solução</a></li>
+<li><a href="Dino-Adventures.pptx"> Apresentação</a></li>
